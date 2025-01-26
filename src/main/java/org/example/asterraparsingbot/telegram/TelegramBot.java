@@ -24,10 +24,12 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Autowired
     private BotConfig config;
 
-    private GenplanParsingHandler genplanParsingHandler;
+    private GenplanParsingHandler genplanHandler;
 
     @Value("${sendMessagesOn}")
     private boolean sendOn;
+    @Value("${sendGenplanPng}")
+    private String patchGenplanPicture;
 
     private final Map<Long, Integer> lastMessageIds = new HashMap<>();
 
@@ -48,7 +50,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             long chatId = update.getMessage().getChatId();
 
             if (message.equals("/start")) {
-                startCommandReceived(chatId);
+                // TODO доделать запуск шедулера
             } else if (message.equals("/stop")) {
 
             }

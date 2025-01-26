@@ -1,4 +1,4 @@
-package org.example.asterraparsingbot.handler;
+package org.example.asterraparsingbot;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -7,27 +7,19 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@EnableScheduling
-public class GenplanParsingHandler {
-
-    @Value("${https.asterra.genplan}")
-    private String url;
-
-
-    @Scheduled(fixedDelay = 180000000)
-    public String getGenplan() {
+public class GenplanParsingHandlerTest {
+    public static void main(String[] args) {
         OkHttpClient client = new OkHttpClient();
+
         Request request = new Request.Builder()
-                .url(url)
+                .url("https://www.asterra.ru/projects/bogorodsk-forest/genplan/")
                 .build();
+
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected code " + response);
@@ -61,8 +53,8 @@ public class GenplanParsingHandler {
                 for (Element squareElement : squareElements) {
                     Matcher matcher = pattern.matcher(squareElement.text());
                     if (matcher.find()) {
-                        double square = Double.parseDouble(matcher.group(1).replace(",", "."));
-                        if (square >= 5 && square <= 5.5) {
+                        double squareValue = Double.parseDouble(matcher.group(1).replace(",", "."));
+                        if (squareValue >= 5 && squareValue <= 5.5) {
                             hasSquare = true;
                             break;
                         }
@@ -74,22 +66,14 @@ public class GenplanParsingHandler {
                 }
 
                 if (isLandPlot && hasSquare && isAvailable) {
-                    var squareResult = item.select("p.square").text();
-                    var number = item.select("div.number").text();
-                    var status = item.select("div.status.stat0").text();
-                    StringBuilder result = new StringBuilder();
-                    for (int i = 0; i < statusElements.size(); i++) {
-                        result.append(statusElements.get(i).append(number));
-                    }
+                    var number = item.parent().select("div.number").text();
+                    System.out.println(number + "\n" + item.parent().select("p.square").text() +
+                            "\n" + item.parent().select("div.status.stat0").text() +  "\n "); // Выводим HTML-содержимое родительского элемента
+//                    System.out.println(item.parent().html());
                 }
             }
-            assert response.body() != null;
-            return response.body().string();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
     }
-
 }
-
