@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: asterra-parsing-bot:${VERSION:-latest}
+    container_name: asterra-parsing-bot
+    restart: always
+    ports:
+      - "8090:8090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
